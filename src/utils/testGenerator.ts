@@ -9,12 +9,16 @@ function shuffleArray<T>(array: T[]): T[] {
   return newArr;
 }
 
-export function generateTest(allQuestions: Question[], settings: TestSettings): Question[] {
+export function generateTest(allQuestions: Question[], settings: TestSettings, askedQuestions: string[] = []): Question[] {
   let selectedQuestions: Question[] = [];
+
+  const companyQuestions = settings.selectedCompany === 'All' 
+    ? allQuestions 
+    : allQuestions.filter(q => q.company === settings.selectedCompany);
 
   settings.sectionDistribution.forEach(sectionDef => {
     // Filter questions by this section
-    const sectionQuestions = allQuestions.filter(q => q.section === sectionDef.section);
+    const sectionQuestions = companyQuestions.filter(q => q.section === sectionDef.section);
     
     if (sectionQuestions.length === 0) return;
 
@@ -23,21 +27,38 @@ export function generateTest(allQuestions: Question[], settings: TestSettings): 
     const hardCount = Math.round(sectionDef.questionCount * (settings.difficultyRatio.Hard / 100));
     const mediumCount = sectionDef.questionCount - easyCount - hardCount; // Remainder to medium
 
-    const easyQuestions = shuffleArray(sectionQuestions.filter(q => q.difficulty === 'Easy'));
-    const mediumQuestions = shuffleArray(sectionQuestions.filter(q => q.difficulty === 'Medium'));
-    const hardQuestions = shuffleArray(sectionQuestions.filter(q => q.difficulty === 'Hard'));
+    const pickQuestions = (diff: string, count: number) => {
+      const unused = shuffleArray(sectionQuestions.filter(q => q.difficulty === diff && !askedQuestions.includes(q.id)));
+      const used = shuffleArray(sectionQuestions.filter(q => q.difficulty === diff && askedQuestions.includes(q.id)));
+      
+      let selected = unused.slice(0, count);
+      if (selected.length < count) {
+        selected = [...selected, ...used.slice(0, count - selected.length)];
+      }
+      return selected;
+    };
+
+    const easyQuestions = pickQuestions('Easy', easyCount);
+    const mediumQuestions = pickQuestions('Medium', mediumCount);
+    const hardQuestions = pickQuestions('Hard', hardCount);
 
     const selectedForSection = [
-      ...easyQuestions.slice(0, easyCount),
-      ...mediumQuestions.slice(0, mediumCount),
-      ...hardQuestions.slice(0, hardCount)
+      ...easyQuestions,
+      ...mediumQuestions,
+      ...hardQuestions
     ];
 
     // If there's a shortfall because we don't have enough of a specific difficulty, fill with whatever is available
     if (selectedForSection.length < sectionDef.questionCount) {
       const needed = sectionDef.questionCount - selectedForSection.length;
-      const unused = sectionQuestions.filter(q => !selectedForSection.find(sq => sq.id === q.id));
-      selectedForSection.push(...shuffleArray(unused).slice(0, needed));
+      const unusedFallback = sectionQuestions.filter(q => !selectedForSection.find(sq => sq.id === q.id) && !askedQuestions.includes(q.id));
+      const usedFallback = sectionQuestions.filter(q => !selectedForSection.find(sq => sq.id === q.id) && askedQuestions.includes(q.id));
+      
+      let fallbackSelected = shuffleArray(unusedFallback).slice(0, needed);
+      if (fallbackSelected.length < needed) {
+        fallbackSelected = [...fallbackSelected, ...shuffleArray(usedFallback).slice(0, needed - fallbackSelected.length)];
+      }
+      selectedForSection.push(...fallbackSelected);
     }
 
     selectedQuestions = [...selectedQuestions, ...selectedForSection];

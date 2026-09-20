@@ -11,6 +11,11 @@ def process_excel_files(base_dir, output_file):
             if file.endswith('.xlsx') and not file.startswith('~'):
                 file_path = os.path.join(root, file)
                 print(f"Processing: {file_path}")
+                
+                # Extract company name (first level directory under base_dir)
+                rel_path = os.path.relpath(root, base_dir)
+                company = rel_path.split(os.sep)[0] if rel_path != '.' else 'Unknown'
+
                 try:
                     df = pd.read_excel(file_path)
                     
@@ -25,6 +30,7 @@ def process_excel_files(base_dir, output_file):
                             
                         question_data = {
                             "id": str(row.get('id', f"{file}_{index}")),
+                            "company": company,
                             "section": str(row.get('section', os.path.basename(root))).strip(),
                             "difficulty": str(row.get('difficulty', 'Medium')).strip(),
                             "question": str(row.get('question')),

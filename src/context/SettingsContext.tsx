@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { TestSettings } from '../types';
 
 export const defaultSettings: TestSettings = {
+  selectedCompany: 'All',
   totalQuestions: 50,
   totalTimeMinutes: 30,
   sectionDistribution: [
@@ -24,6 +25,21 @@ export const defaultSettings: TestSettings = {
   shuffleQuestions: true,
   shuffleOptions: true,
 };
+
+export const companyDefaults: Record<string, Partial<TestSettings>> = {
+  Infosys: {
+    totalQuestions: 54,
+    totalTimeMinutes: 100,
+    sectionDistribution: [
+      { section: 'Mathematical Ability', timeLimit: 35, questionCount: 10 },
+      { section: 'Logical Reasoning', timeLimit: 25, questionCount: 15 },
+      { section: 'Verbal Ability', timeLimit: 20, questionCount: 20 },
+      { section: 'Pseudo Code', timeLimit: 10, questionCount: 5 },
+      { section: 'Puzzle Solving', timeLimit: 10, questionCount: 4 },
+    ]
+  }
+};
+
 
 interface SettingsContextProps {
   settings: TestSettings;

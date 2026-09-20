@@ -1,5 +1,6 @@
 export interface Question {
   id: string;
+  company: string;
   section: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   question: string;
@@ -21,6 +22,7 @@ export interface SectionDistribution {
 }
 
 export interface TestSettings {
+  selectedCompany: string;
   totalQuestions: number;
   totalTimeMinutes: number;
   sectionDistribution: SectionDistribution[];

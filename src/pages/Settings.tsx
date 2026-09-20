@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SettingsContext, defaultSettings } from '../context/SettingsContext';
-import { ArrowLeft, RotateCcw, Save } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Save, Trash2 } from 'lucide-react';
 
 const Settings: React.FC = () => {
   const { settings, updateSettings, restoreDefaults } = useContext(SettingsContext);
@@ -18,6 +18,13 @@ const Settings: React.FC = () => {
     restoreDefaults();
   };
 
+  const handleClearHistory = () => {
+    if (window.confirm('Are you sure you want to clear your asked questions history?')) {
+      localStorage.removeItem('askedQuestions');
+      alert('Question history cleared! You will now see previously asked questions again.');
+    }
+  };
+
   return (
     <div className="settings-container">
       <div className="settings-header">
@@ -26,6 +33,9 @@ const Settings: React.FC = () => {
         </button>
         <h1>Test Configuration</h1>
         <div className="header-actions">
+          <button className="btn-secondary" onClick={handleClearHistory} style={{ marginRight: '10px' }} title="Clear Asked Questions History">
+            <Trash2 size={18} /> Clear History
+          </button>
           <button className="btn-secondary" onClick={handleRestore}>
             <RotateCcw size={18} /> Restore Defaults
           </button>
@@ -37,7 +47,7 @@ const Settings: React.FC = () => {
 
       <div className="settings-content">
         <section className="settings-section">
-          <h2>General Settings</h2>
+          <h2>General Settings (Target: {localSettings.selectedCompany === 'All' ? 'Mixed' : localSettings.selectedCompany})</h2>
           <div className="form-group">
             <label>Total Questions</label>
             <input 

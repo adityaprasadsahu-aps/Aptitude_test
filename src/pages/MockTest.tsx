@@ -22,8 +22,25 @@ const MockTest: React.FC = () => {
         const response = await fetch('/data/questions.json');
         const allQuestions = await response.json();
         
-        const testQuestions = generateTest(allQuestions, settings);
+        // Read asked questions from localStorage
+        let askedQuestions: string[] = [];
+        try {
+          const stored = localStorage.getItem('askedQuestions');
+          if (stored) askedQuestions = JSON.parse(stored);
+        } catch (e) {
+          console.error("Failed to parse askedQuestions", e);
+        }
+
+        const testQuestions = generateTest(allQuestions, settings, askedQuestions);
         setQuestions(testQuestions);
+        
+        // Save newly asked questions to localStorage
+        try {
+          const newAsked = [...askedQuestions, ...testQuestions.map(q => q.id)];
+          localStorage.setItem('askedQuestions', JSON.stringify(Array.from(new Set(newAsked))));
+        } catch (e) {
+          console.error("Failed to save askedQuestions", e);
+        }
         
         const initialAnswers = testQuestions.map(q => ({
           questionId: q.id,
