@@ -24,8 +24,8 @@ const Home: React.FC = () => {
   return (
     <div className="home-container">
       <div className="hero-section">
-        <h1>Aptitude Test Pro</h1>
-        <p>Master campus placements & technical assessments with real question banks.</p>
+        <h1>Aptitude Test Lite</h1>
+        <p>Made in My Spare Time</p>
         
         <div className="company-selector-container" style={{ 
           margin: '2rem auto', 
