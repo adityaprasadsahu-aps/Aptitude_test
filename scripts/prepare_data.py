@@ -78,7 +78,6 @@ def normalize_answer(ans_val, options):
         if opt_val and ans_str.lower() == str(opt_val).strip().lower():
             return letter
             
-    # efault fallback
     first_char = ans_str[:1].upper()
     return first_char if first_char in ['A', 'B', 'C', 'D'] else 'A'
 
