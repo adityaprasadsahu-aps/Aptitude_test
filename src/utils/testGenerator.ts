@@ -64,6 +64,16 @@ export function generateTest(allQuestions: Question[], settings: TestSettings, a
     selectedQuestions = [...selectedQuestions, ...selectedForSection];
   });
 
+  // Safety Fallback: If sectionDistribution had no matching questions for this company,
+  // dynamically select questions across the available sections of the company.
+  if (selectedQuestions.length === 0 && companyQuestions.length > 0) {
+    const targetCount = settings.totalQuestions > 0 ? settings.totalQuestions : 30;
+    const shuffledAvailable = shuffleArray(companyQuestions);
+    const unused = shuffledAvailable.filter(q => !askedQuestions.includes(q.id));
+    const used = shuffledAvailable.filter(q => askedQuestions.includes(q.id));
+    selectedQuestions = [...unused, ...used].slice(0, targetCount);
+  }
+
   if (settings.shuffleQuestions) {
     selectedQuestions = shuffleArray(selectedQuestions);
   }

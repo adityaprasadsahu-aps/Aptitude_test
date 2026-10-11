@@ -21,6 +21,17 @@ export interface SectionDistribution {
   questionCount: number;
 }
 
+export interface CompanySection {
+  section: string;
+  questionCount: number;
+}
+
+export interface CompanyInfo {
+  name: string;
+  totalQuestions: number;
+  sections: CompanySection[];
+}
+
 export interface TestSettings {
   selectedCompany: string;
   totalQuestions: number;

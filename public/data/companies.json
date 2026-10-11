@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Infosys",
+        "totalQuestions": 1000,
+        "sections": [
+            {
+                "section": "Logical Reasoning",
+                "questionCount": 200
+            },
+            {
+                "section": "Mathematical Ability",
+                "questionCount": 200
+            },
+            {
+                "section": "Pseudo Code",
+                "questionCount": 200
+            },
+            {
+                "section": "Puzzle Solving",
+                "questionCount": 200
+            },
+            {
+                "section": "Verbal Ability",
+                "questionCount": 200
+            }
+        ]
+    },
+    {
+        "name": "P360",
+        "totalQuestions": 1900,
+        "sections": [
+            {
+                "section": "Arithmetic Ability",
+                "questionCount": 400
+            },
+            {
+                "section": "Cloud Basics",
+                "questionCount": 250
+            },
+            {
+                "section": "Generative AI",
+                "questionCount": 200
+            },
+            {
+                "section": "Logical Reasoning",
+                "questionCount": 250
+            },
+            {
+                "section": "Puzzles & Games",
+                "questionCount": 200
+            },
+            {
+                "section": "SQL Basics",
+                "questionCount": 100
+            },
+            {
+                "section": "Verbal Ability",
+                "questionCount": 500
+            }
+        ]
+    }
+]

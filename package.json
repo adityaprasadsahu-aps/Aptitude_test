@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prepare-data": "python scripts/prepare_data.py",
+    "prebuild": "python scripts/prepare_data.py",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
