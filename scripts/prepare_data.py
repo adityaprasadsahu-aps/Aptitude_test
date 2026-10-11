@@ -19,7 +19,6 @@ def get_row_val(row_dict_norm, *candidate_keys, default=""):
     return default
 
 def clean_camel_case(s):
-    # Splits CamelCase like MathematicalAbility -> Mathematical Ability
     s = re.sub(r'([a-z])([A-Z])', r'\1 \2', s)
     s = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1 \2', s)
     return s.strip()
@@ -28,7 +27,7 @@ def normalize_section_name(raw_name):
     if not raw_name or raw_name.lower() == 'nan':
         return "General Aptitude"
     
-    s = clean_camel_case(str(raw_name).strip())
+    s=clean_camel_case(str(raw_name).strip())
     s_lower = s.lower()
     
     if 'sql' in s_lower:
@@ -67,22 +66,19 @@ def normalize_answer(ans_val, options):
         return 'A'
     ans_str = str(ans_val).strip()
     
-    # Check if starts with A, B, C, D (e.g. "Option A", "A", "A)", "a")
     m = re.match(r'^(?:option\s*)?([A-D])\b', ans_str, re.IGNORECASE)
     if m:
         return m.group(1).upper()
         
-    # Check if 1, 2, 3, 4
     m_num = re.match(r'^([1-4])$', ans_str)
     if m_num:
         return ['A', 'B', 'C', 'D'][int(m_num.group(1)) - 1]
         
-    # Check if answer matches one of option values
     for letter, opt_val in options.items():
         if opt_val and ans_str.lower() == str(opt_val).strip().lower():
             return letter
             
-    # Default fallback
+    # efault fallback
     first_char = ans_str[:1].upper()
     return first_char if first_char in ['A', 'B', 'C', 'D'] else 'A'
 
@@ -98,16 +94,13 @@ def process_excel_files(base_dir="Question_bank", output_file="public/data/quest
         print(f"Directory {base_dir} does not exist.")
         return
 
-    # Discover all company folders directly under base_dir
     company_folders = [
         d for d in os.listdir(base_dir) 
         if os.path.isdir(os.path.join(base_dir, d)) and not d.startswith('.') and not d.startswith('~')
     ]
     print(f"Discovered target companies in {base_dir}: {company_folders}")
 
-    # Process all files in base_dir
     for root, dirs, files in os.walk(base_dir):
-        # Check for images folder and copy to public/images
         if os.path.basename(root).lower() == 'images':
             for img_file in files:
                 if img_file.lower().endswith(('.svg', '.png', '.jpg', '.jpeg', '.webp')):
@@ -123,14 +116,10 @@ def process_excel_files(base_dir="Question_bank", output_file="public/data/quest
                 file_path = os.path.join(root, file)
                 print(f"Processing: {file_path}")
                 
-                # Extract company name (first level directory under base_dir)
                 rel_path = os.path.relpath(root, base_dir)
                 parts = rel_path.split(os.sep)
                 company = parts[0] if parts and parts[0] != '.' else 'General'
                 
-                # Determine section:
-                # If there are subdirectories (e.g. Question_bank/Infosys/LogicalReasoning/...),
-                # the 2nd level directory represents the primary section.
                 section_from_dir = parts[1] if len(parts) > 1 else None
                 
                 try:
@@ -143,8 +132,7 @@ def process_excel_files(base_dir="Question_bank", output_file="public/data/quest
                         question_text = get_row_val(row_norm, 'question', 'problem', 'q', 'question text')
                         if not question_text:
                             continue
-                            
-                        # Check for code or setup snippets
+
                         pseudocode = get_row_val(row_norm, 'pseudocode', 'code', 'snippet', 'code snippet')
                         puzzle_setup = get_row_val(row_norm, 'puzzle setup', 'setup', 'context', 'passage', 'description')
                         
@@ -173,7 +161,6 @@ def process_excel_files(base_dir="Question_bank", output_file="public/data/quest
                         raw_diff = get_row_val(row_norm, 'difficulty', 'level', 'diff', default='Medium')
                         difficulty = normalize_difficulty(raw_diff)
                         
-                        # Section resolution: directory name takes precedence for consistency, fallback to row section
                         if section_from_dir:
                             raw_sec = section_from_dir
                         else:
@@ -183,7 +170,7 @@ def process_excel_files(base_dir="Question_bank", output_file="public/data/quest
                         topic = get_row_val(row_norm, 'topic', 'category', default="")
                         explanation = get_row_val(row_norm, 'explanation', 'solution', 'rationale', 'explain', default="")
                         
-                        # Generate unique ID
+                        #Generate unique id
                         raw_id = get_row_val(row_norm, 'id', 'qno', 'q no', 'question id', default=f"{file}_{index}")
                         q_id = f"{company}_{file}_{raw_id}"
                         
@@ -199,7 +186,6 @@ def process_excel_files(base_dir="Question_bank", output_file="public/data/quest
                             "explanation": explanation
                         }
                         
-                        # Check image
                         raw_img = get_row_val(row_norm, 'image', 'img', 'diagram', default="")
                         if raw_img:
                             img_name = os.path.basename(raw_img.strip())
@@ -207,7 +193,6 @@ def process_excel_files(base_dir="Question_bank", output_file="public/data/quest
                             
                         all_questions.append(question_data)
                         
-                        # Track company stats
                         if company not in company_stats:
                             company_stats[company] = {"sections": {}}
                         if section not in company_stats[company]["sections"]:
@@ -217,7 +202,6 @@ def process_excel_files(base_dir="Question_bank", output_file="public/data/quest
                 except Exception as e:
                     print(f"Error processing {file_path}: {e}")
 
-    # Build companies metadata
     companies_list = []
     all_companies = sorted(list(set(company_folders + list(company_stats.keys()))))
     
@@ -234,12 +218,9 @@ def process_excel_files(base_dir="Question_bank", output_file="public/data/quest
             "sections": sections_arr
         })
         
-    # Write questions to JSON
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(all_questions, f, indent=4)
     print(f"Successfully wrote {len(all_questions)} questions to {output_file}")
-    
-    # Write companies to JSON
     with open(companies_file, 'w', encoding='utf-8') as f:
         json.dump(companies_list, f, indent=4)
     print(f"Successfully wrote {len(companies_list)} companies metadata to {companies_file}")
